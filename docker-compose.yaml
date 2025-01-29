@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  # streamlit-app:
+  #   build:
+  #     context: ./chat_app
+  #     dockerfile: src/Dockerfile
+  #   ports:
+  #     - "8501:8501"
+  #   depends_on:
+  #     - mongodb
+  #     - chromadb
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: chromadb
+    ports:
+      - "8000:8000"
+    volumes:
+      - chroma-data:/data/db
+
+volumes:
+  mongo-data:
+  chroma-data:
