@@ -115,15 +115,15 @@ def create_embeddings(chroma_client,ollama_ef,post_df,comment_df):
     metadata = []
     ids = []
     comment_df['parent_id'] = comment_df['parent_id'].apply(lambda x: x.split('_')[1])
-    for i in post_df:
+    for _,i in post_df.iterrows():
         comments = comment_df[comment_df['parent_id'] == i['id']]
         comments = str(comments['body'].tolist())
-        processed_data.append({
-            'id': i['id'],
-            'title': i['title'],
-            'selftext': i['selftext'],
-            'comments': comments
-        })
+        processed_data.append(f"""
+            'id': {i['id']},
+            'title': {i['title']},
+            'selftext': {i['selftext']},
+            'comments': {comments}
+        """)
         metadata.append({
             'id': i['id'],
             'subreddit': i['subreddit'],
@@ -168,7 +168,7 @@ async def main():
     comment_df = pd.DataFrame(list(comment_data))
     
     chroma_client = chroma_connect()
-    ollama_ef = OllamaEmbeddingFunction(url=f"{ollama_url}/api/embeddings", model_name="nomic-embed-text")
+    ollama_ef = OllamaEmbeddingFunction(url="http://localhost:11434/api/embeddings", model_name="nomic-embed-text")
     create_embeddings(chroma_client,ollama_ef,post_df,comment_df)
     print("Embeddings created, All tasks completed")
     
