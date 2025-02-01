@@ -1,13 +1,15 @@
-from pydantic_ai import Agent,tools, RunContext
-from pydantic_ai.usage import Usage
-from dataclasses import dataclass
-from backend.prompt import validator_prompt
-from duckduckgo_search import DDGS
-from chromadb.utils.embedding_functions.ollama_embedding_function import OllamaEmbeddingFunction
-import chromadb
 import os
-from dotenv import load_dotenv
+from pydantic_ai import Agent,tools, RunContext
+from dataclasses import dataclass
+from pydantic_ai.usage import Usage
 import logfire
+from chromadb.utils.embedding_functions.ollama_embedding_function import OllamaEmbeddingFunction
+from duckduckgo_search import DDGS
+import chromadb
+from dotenv import load_dotenv
+from crawl4ai import *
+import asyncio
+from backend.prompt import validator_prompt
 load_dotenv()
 
 def scrubbing_callback(m: logfire.ScrubMatch):
@@ -36,6 +38,10 @@ def chroma_connect():
     except Exception as e:
         print(f"Error connecting to Chroma: {str(e)}")
 
+async def webcontent(url: str) -> str:
+    async with AsyncWebCrawler() as crawler:
+        result = await crawler.arun(url)
+        return result.markdown
 
 @agent.tool_plain
 def search_in_browser(search_query:str)-> str:
@@ -66,5 +72,5 @@ def search_in_embed(ctx:RunContext[Deps],search_query:str) -> list[str]:
 async def main(query:str):
     client = chroma_connect()
     deps = Deps(chroma_client=client)
-    result = await agent.run(query,deps=deps)
+    result = await agent.run(query, deps=deps)
     return result.data
