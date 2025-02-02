@@ -19,6 +19,6 @@ def health_check():
     return {"status": "running"}
 
 @app.get('/query')
-async def chat(query: str, session_id: Optional[str] = None):
-    # return {'message': await main(query)}
-    return {'message': await get_response(query,session_id)}
+async def chat(query: str, session_id:str):
+    return {'message': await main(query,session_id)}
+    # return {'message': await get_response(query,session_id)}
